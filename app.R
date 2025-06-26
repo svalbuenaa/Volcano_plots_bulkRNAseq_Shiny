@@ -31,11 +31,8 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
+            textInput("pvalue_user",
+                        "pvalue threshold:")
         ),
 
         # Show a plot of the generated distribution
@@ -49,14 +46,22 @@ ui <- fluidPage(
 server <- function(input, output) {
 
     output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
+        tryCatch({
+          pvalue_ <- as.numeric(input$pvalue_user)
+          if(pvalue_ > 0 & pvalue_ <= 1){
+            ggplot(dataset %>% filter(padj < pvalue_), aes(x=log2FoldChange, y=-log10(padj), label=Gene))+ 
+              geom_point()
+          }
+        },
+        error = function(e){
+          ggplot()+
+            labs(title="Please, insert numeric values between 0 and 1")
+        })
+        
         # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
+        # hist(x, breaks = bins, col = 'darkgray', border = 'white',
+             # xlab = 'P-value',
+             # main = 'Histogram of p-values')
     })
 }
 
