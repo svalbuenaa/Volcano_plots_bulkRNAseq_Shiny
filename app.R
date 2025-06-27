@@ -10,16 +10,6 @@
 library(shiny)
 library(tidyverse)
 
-proj_dir <- file.path("C:", "Users", "svalb", "OneDrive", "Escritorio", 
-                      "temp_csv_Shiny", "gene_list.csv")
-dataset <- read.csv(proj_dir)
-
-# Default values for threshold
-significance_level <- 0.05
-
-# Start modifying dataset to prepare it for rendering
-names(dataset)[names(dataset) == 'X'] <- 'Gene'
-dataset %>% filter(padj<significance_level) %>% arrange(padj)
 
 
 
@@ -54,33 +44,24 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  print("AA")
-  # dataset <- reactive({
-  #   print("AB")
-  #   
-  #   
-  # })
     output$distPlot <- renderPlot({
-      print("AA")
       file_ <- input$csv_user
       ext <- tools::file_ext(file_$datapath)
-      print("AB")
       req(file_)
       validate(need(ext == "csv", "Please upload a csv file"))
-      print("AC")
       dataset <- read.csv(file_$datapath)
       significance_level <- 0.05
       
       names(dataset)[names(dataset) == 'X'] <- 'Gene'
       dataset %>% filter(padj<significance_level) %>% arrange(padj)
-      
-      print(d)
+
       notif_id <- showNotification("Preparing plot", duration = NULL)
       tryCatch({
         # Get values provided by user
         threshold_pvalue_ <- as.numeric(input$pvalue_user)
         threshold_log2FoldChange_ <- as.numeric(input$log2FoldChange_user)
         plot_title_ <- as.character(input$title_user)
+        plot_theme_ <- 
         
         # Update dataset significance column based on user-provided values
         dataset$significance <- NA
