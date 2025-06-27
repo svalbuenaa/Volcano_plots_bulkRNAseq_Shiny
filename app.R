@@ -32,6 +32,7 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
+            fileInput("csv_user", "Choose CSV File with DEG analysis", accept = ".csv"),
             textInput("pvalue_user",
                       "pvalue threshold:",
                       value = 0.05),
@@ -53,7 +54,27 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  print("AA")
+  # dataset <- reactive({
+  #   print("AB")
+  #   
+  #   
+  # })
     output$distPlot <- renderPlot({
+      print("AA")
+      file_ <- input$csv_user
+      ext <- tools::file_ext(file_$datapath)
+      print("AB")
+      req(file_)
+      validate(need(ext == "csv", "Please upload a csv file"))
+      print("AC")
+      dataset <- read.csv(file_$datapath)
+      significance_level <- 0.05
+      
+      names(dataset)[names(dataset) == 'X'] <- 'Gene'
+      dataset %>% filter(padj<significance_level) %>% arrange(padj)
+      
+      print(d)
       notif_id <- showNotification("Preparing plot", duration = NULL)
       tryCatch({
         # Get values provided by user
@@ -91,6 +112,11 @@ server <- function(input, output) {
           theme_void()
       })
     })
+    
+  
+  
+  
+    
 }
 
 
