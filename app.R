@@ -15,7 +15,7 @@ library(tidyverse)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-
+    
     # Application title
     titlePanel("Volcano plots for bulk-RNAseq data"),
 
@@ -32,7 +32,25 @@ ui <- fluidPage(
                       value = 2),
             textInput("title_user",
                       "plot title:",
-                      placeholder = "Introduce plot title")
+                      placeholder = "Introduce plot title"),
+            selectInput(
+              "theme_user",
+              "plot theme",
+              choices = list(
+                "theme_gray",
+                "theme_bw",
+                "theme_linedraw",
+                "theme_light",
+                "theme_dark",
+                "theme_minimal",
+                "theme_classic",
+                "theme_void",
+                "theme_test"
+              ),
+              selected = NULL,
+              multiple = FALSE,
+              selectize = FALSE
+            )
         ),
 
         # Show a plot of the generated distribution
@@ -61,7 +79,7 @@ server <- function(input, output) {
         threshold_pvalue_ <- as.numeric(input$pvalue_user)
         threshold_log2FoldChange_ <- as.numeric(input$log2FoldChange_user)
         plot_title_ <- as.character(input$title_user)
-        plot_theme_ <- 
+        plot_theme_ <- as.character(input$theme_user)
         
         # Update dataset significance column based on user-provided values
         dataset$significance <- NA
@@ -80,7 +98,8 @@ server <- function(input, output) {
           ggplot(dataset, aes(x = log2FoldChange, y = -log10(padj), label = Gene, color = significance)) +
             geom_point(size = 0.8) +
             scale_color_manual(values = c("Up" = "#b02428", "Not significant" = "grey", "Down" = "#6697ea")) +
-            labs(title = plot_title_)
+            labs(title = plot_title_)+
+            eval(parse(text=paste0(plot_theme_, "()")))
         }
         
       }, error = function(e) {
