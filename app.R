@@ -102,6 +102,14 @@ server <- function(input, output) {
           scale_color_manual(values = c("Up" = "#b02428", "Not significant" = "grey", "Down" = "#6697ea")) +
           labs(title = plot_title_)+
           eval(parse(text=paste0(plot_theme_, "()")))
+      }else{
+        removeNotification(notif_id)
+        ggplot() +
+          labs(
+            title = "Please, insert valid numeric values:",
+            subtitle = "--Insert values from 0 to 1 for the pvalue\n--Insert values larger than 0 for log2FoldChange"
+          ) +
+          theme_void()
       }
       
     }, error = function(e) {
