@@ -23,13 +23,14 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
             fileInput("csv_user", "Choose CSV File with DEG analysis", accept = ".csv"),
-            textInput("pvalue_user",
-                      "pvalue threshold:",
+            tags$h4("Choose threshold values:"),
+            splitLayout(cellWidths = c("50%", "50%"), 
+              textInput("pvalue_user",
+                      "p-value",
                       value = 0.05),
-            
-            textInput("log2FoldChange_user",
-                      "log2FoldChange threshold:",
-                      value = 2),
+              textInput("log2FoldChange_user",
+                      "log2FoldChange",
+                      value = 2)),
             textInput("title_user",
                       "plot title:",
                       placeholder = "Introduce plot title"),
@@ -50,13 +51,13 @@ ui <- fluidPage(
               selected = NULL,
               multiple = FALSE,
               selectize = FALSE
-            ),
-            downloadButton("downloadPlot", "Download Plot")
+            )
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-           plotOutput("distPlot")
+           plotOutput("distPlot"),
+           downloadButton("downloadPlot", "Download Plot")
         )
     )
 )
