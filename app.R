@@ -106,11 +106,13 @@ server <- function(input, output) {
         
         if (threshold_pvalue_ > 0 & threshold_pvalue_ <= 1 & threshold_log2FoldChange_ > 0) {
           removeNotification(notif_id)
+          plot_theme_var <- eval(parse(text=paste0(plot_theme_, "()")))
           ggplot(dataset, aes(x = log2FoldChange, y = -log10(padj), label = Gene, color = significance)) +
             geom_point(size = 0.8) +
             scale_color_manual(values = c("Up" = "#b02428", "Not significant" = "grey", "Down" = "#6697ea")) +
             labs(title = plot_title_)+
-            eval(parse(text=paste0(plot_theme_, "()")))
+            plot_theme_var+
+            theme(plot.title = element_text(hjust = 0.5))
         }else{
           removeNotification(notif_id)
           ggplot() +
