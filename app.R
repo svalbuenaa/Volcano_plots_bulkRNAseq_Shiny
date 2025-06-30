@@ -57,24 +57,27 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
           plotOutput("distPlot"),
-          splitLayout(cellWidths = c("20%", "70%"), 
-            selectInput(
-              "format_user",
-              NULL,
-              choices = list(
-                "PNG",
-                "JPG",
-                "PDF",
-                "EPS",
-                "TIFF",
-                "BMP",
-                "SVG"
-              ),
-              selected = "PNG",
-              multiple = FALSE,
-              selectize = FALSE
+          fluidRow(
+            column(2,
+                   textInput("width_user", "Plot width", value = 8)
             ),
-            downloadButton("downloadPlot", "Download Plot")
+            column(2,
+                   textInput("height_user", "Plot height", value = 6)
+            ),
+            column(2,
+                   selectInput(
+                     "format_user",
+                     "Save format",
+                     choices = list("PNG", "JPG", "PDF", "EPS", "TIFF", "BMP", "SVG"),
+                     selected = "PNG",
+                     multiple = FALSE,
+                     selectize = FALSE
+                   )
+            ),
+            column(3,
+                   tags$label("Save plot"),
+                   downloadButton("downloadPlot", "Download")
+            )
           )
           
         )
@@ -84,6 +87,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   reactive_format <- reactive(format_save_ <- tolower(as.character(input$format_user)))
+  
   reactive_plot <- reactive({
     file_ <- input$csv_user
     ext <- tools::file_ext(file_$datapath)
@@ -152,8 +156,16 @@ server <- function(input, output) {
         paste("myplot-", Sys.Date(), ".", reactive_format(), sep="")
       },
       content = function(file) {
-        # Save the plot to file
-        ggsave(file, plot = reactive_plot(), width = 8, height = 6)
+        # Parse width and height inputs safely
+        width_num <- as.numeric(input$width_user)
+        height_num <- as.numeric(input$height_user)
+        
+        # Provide fallback defaults if input is invalid
+        if (is.na(width_num) || width_num <= 0) width_num <- 8
+        if (is.na(height_num) || height_num <= 0) height_num <- 6
+        
+        # Save the plot to file with validated dimensions
+        ggsave(file, plot = reactive_plot(), width = width_num, height = height_num)
       }
     )
     
