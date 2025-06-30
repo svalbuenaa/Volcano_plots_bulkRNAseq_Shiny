@@ -28,7 +28,11 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      fileInput("csv_user", "Choose CSV File with DEG analysis", accept = ".csv"),
+      fileInput("csv_user",
+                label = HTML(
+                  "Choose CSV File with DEG analysis"
+                ),
+                accept = ".csv"),
       tags$h4("Choose threshold values:"),
       splitLayout(cellWidths = c("50%", "50%"), 
                   textInput("pvalue_user", "p-value", value = 0.05),
@@ -73,37 +77,51 @@ server <- function(input, output) {
     dataset <- read.csv(file_$datapath)
     significance_level <- 0.05
     
-    names(dataset)[names(dataset) == 'X'] <- 'Gene'
-    dataset %>% filter(padj<significance_level) %>% arrange(padj)
-    
     notif_id <- showNotification("Preparing plot", duration = NULL)
-    tryCatch({
-      # Get values provided by user
-      threshold_pvalue_ <- as.numeric(input$pvalue_user)
-      threshold_log2FoldChange_ <- as.numeric(input$log2FoldChange_user)
-      plot_title_ <- as.character(input$title_user)
-      plot_theme_ <- as.character(input$theme_user)
+    
+    if("Gene" %in% colnames(dataset) &
+       "padj" %in% colnames(dataset) &
+       "log2FoldChange" %in% colnames(dataset)){
+      dataset %>% filter(padj<significance_level) %>% arrange(padj)
       
-      # Update dataset significance column based on user-provided values
-      dataset$significance <- NA
-      for (gene in 1:nrow(dataset)) {
-        if (dataset[gene, "log2FoldChange"] >= threshold_log2FoldChange_ & dataset[gene, "padj"] < threshold_pvalue_) {
-          dataset[gene, "significance"] <- "Up"
-        } else if (dataset[gene, "log2FoldChange"] <= -threshold_log2FoldChange_ & dataset[gene, "padj"] < threshold_pvalue_) {
-          dataset[gene, "significance"] <- "Down"
-        } else {
-          dataset[gene, "significance"] <- "Not significant"
+      
+      tryCatch({
+        # Get values provided by user
+        threshold_pvalue_ <- as.numeric(input$pvalue_user)
+        threshold_log2FoldChange_ <- as.numeric(input$log2FoldChange_user)
+        plot_title_ <- as.character(input$title_user)
+        plot_theme_ <- as.character(input$theme_user)
+        
+        # Update dataset significance column based on user-provided values
+        dataset$significance <- NA
+        for (gene in 1:nrow(dataset)) {
+          if (dataset[gene, "log2FoldChange"] >= threshold_log2FoldChange_ & dataset[gene, "padj"] < threshold_pvalue_) {
+            dataset[gene, "significance"] <- "Up"
+          } else if (dataset[gene, "log2FoldChange"] <= -threshold_log2FoldChange_ & dataset[gene, "padj"] < threshold_pvalue_) {
+            dataset[gene, "significance"] <- "Down"
+          } else {
+            dataset[gene, "significance"] <- "Not significant"
+          }
         }
-      }
-      
-      if (threshold_pvalue_ > 0 & threshold_pvalue_ <= 1 & threshold_log2FoldChange_ > 0) {
-        removeNotification(notif_id)
-        ggplot(dataset, aes(x = log2FoldChange, y = -log10(padj), label = Gene, color = significance)) +
-          geom_point(size = 0.8) +
-          scale_color_manual(values = c("Up" = "#b02428", "Not significant" = "grey", "Down" = "#6697ea")) +
-          labs(title = plot_title_)+
-          eval(parse(text=paste0(plot_theme_, "()")))
-      }else{
+        
+        if (threshold_pvalue_ > 0 & threshold_pvalue_ <= 1 & threshold_log2FoldChange_ > 0) {
+          removeNotification(notif_id)
+          ggplot(dataset, aes(x = log2FoldChange, y = -log10(padj), label = Gene, color = significance)) +
+            geom_point(size = 0.8) +
+            scale_color_manual(values = c("Up" = "#b02428", "Not significant" = "grey", "Down" = "#6697ea")) +
+            labs(title = plot_title_)+
+            eval(parse(text=paste0(plot_theme_, "()")))
+        }else{
+          removeNotification(notif_id)
+          ggplot() +
+            labs(
+              title = "Please, insert valid numeric values:",
+              subtitle = "--Insert values from 0 to 1 for the pvalue\n--Insert values larger than 0 for log2FoldChange"
+            ) +
+            theme_void()
+        }
+        
+      }, error = function(e) {
         removeNotification(notif_id)
         ggplot() +
           labs(
@@ -111,17 +129,18 @@ server <- function(input, output) {
             subtitle = "--Insert values from 0 to 1 for the pvalue\n--Insert values larger than 0 for log2FoldChange"
           ) +
           theme_void()
-      }
-      
-    }, error = function(e) {
+      })
+    }else{
       removeNotification(notif_id)
       ggplot() +
         labs(
-          title = "Please, insert valid numeric values:",
-          subtitle = "--Insert values from 0 to 1 for the pvalue\n--Insert values larger than 0 for log2FoldChange"
+          title = "Please, upload a .csv with the required columns (note case sensitivity):",
+          subtitle = "--'Gene': Gene names\n--'padj': Adjusted p-values\n--'log2FoldChange: Log2 fold change over controls"
         ) +
         theme_void()
-    })
+    }
+    
+    
   })  
   
   output$distPlot <- renderPlot({
