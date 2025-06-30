@@ -89,8 +89,8 @@ server <- function(input, output) {
         plot_theme_ <- as.character(input$theme_user)
         
         dataset$significance <- "Not significant"
-        dataset$significance[dataset$log2FoldChange >= threshold_log2FoldChange_ & dataset$padj < threshold_pvalue_] <- "Up"
-        dataset$significance[dataset$log2FoldChange <= -threshold_log2FoldChange_ & dataset$padj < threshold_pvalue_] <- "Down"
+        dataset$significance[dataset$log2FoldChange >= threshold_log2FoldChange_ & dataset$padj < threshold_pvalue_] <- "Upregulated"
+        dataset$significance[dataset$log2FoldChange <= -threshold_log2FoldChange_ & dataset$padj < threshold_pvalue_] <- "Downregulated"
         
         if (threshold_pvalue_ > 0 & threshold_pvalue_ <= 1 & threshold_log2FoldChange_ > 0) {
           removeNotification(notif_id)
@@ -98,7 +98,7 @@ server <- function(input, output) {
           
           ggplot(dataset, aes(x = log2FoldChange, y = -log10(padj), label = Gene, color = significance)) +
             geom_point(size = 0.8) +
-            scale_color_manual(values = c("Up" = "#b02428", "Not significant" = "grey", "Down" = "#6697ea")) +
+            scale_color_manual(values = c("Upregulated" = "#b02428", "Not significant" = "grey", "Downregulated" = "#6697ea")) +
             labs(title = plot_title_) +
             plot_theme_var +
             theme(plot.title = element_text(hjust = 0.5))
