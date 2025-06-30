@@ -61,7 +61,7 @@ You can install them using the following commands in R:
 ```R
 install.packages("shiny")
 install.packages("tidyverse")
-
+```
 
 
 # Understanding Volcano Plots and Differential Gene Expression
@@ -77,7 +77,7 @@ A volcano plot is a type of scatter plot that is commonly used to visualize the 
 * **X-axis (Log2 Fold Change)**: Represents the magnitude of gene expression change between two conditions.
 * **Y-axis (-log10(Adjusted P-value))**: Represents the statistical significance of the change. The negative logarithm is used so that smaller p-values (more significant) appear higher on the plot.
 
-### Useful Resource for Volcano Plots:
+### Learn more about Volcano Plots:
 
 * **RNA-Seq Blog: Tutorial – visualization of rna-seq results with volcano plot**: A straightforward introduction to volcano plots and their interpretation.
     * [Link](https://www.rna-seqblog.com/tutorial-visualization-of-rna-seq-results-with-volcano-plot/)
@@ -92,7 +92,7 @@ Log2 Fold Change quantifies the magnitude of expression difference between two c
 * A Log2FC of -1 means the gene expression halved.
 * A Log2FC of 0 means no change in expression.
 
-### Useful Resource for Log2 Fold Change:
+### Learn more about Log2 Fold Change:
 
 * **OlvTools: What is fold change? What is logFC?**: Explains fold change and logFC with simple examples.
     * [Link](https://olvtools.com/en/rnaseq/help/fold-change)
@@ -103,14 +103,14 @@ Log2 Fold Change quantifies the magnitude of expression difference between two c
 
 When performing differential expression analysis, you are conducting thousands of statistical tests (one for each gene). This increases the likelihood of false positives by chance (the "multiple testing problem"). Adjusted p-values (often called q-values or False Discovery Rate - FDR) account for this by controlling the expected proportion of false discoveries among the genes identified as significant.
 
-### Useful Resource for Adjusted P-values:
+### Learn more about Adjusted P-values:
 
 * **Medium: Why should we report adjusted p-values in differential expression analysis?**: A comprehensive explanation of why adjusted p-values are necessary and how they differ from raw p-values.
     * [Link](https://medium.com/@tylergenegross97/why-should-we-report-adjusted-p-values-in-differential-expression-analysis-1390d5d548d9)
 
 ---
 
-## General Resource for Interpreting DEG Analysis Results
+## Learn more about Interpreting DEG Analysis Results
 
 * **Bioconductor RNA-seq Workflow: Gene-level exploratory analysis and differential expression**: A detailed workflow using popular R/Bioconductor packages for RNA-seq analysis.
     * [Link](https://master.bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html)
