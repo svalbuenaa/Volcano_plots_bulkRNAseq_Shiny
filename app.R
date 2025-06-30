@@ -15,74 +15,51 @@ library(tidyverse)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  tags$head(
+    tags$style(HTML("
+      #distPlot {
+        width: 100% !important;
+        height: 80vh !important;  /* 80% of viewport height */
+      }
+    "))
+  ),
+  
+  titlePanel("Volcano plots for bulk-RNAseq data"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      fileInput("csv_user", "Choose CSV File with DEG analysis", accept = ".csv"),
+      tags$h4("Choose threshold values:"),
+      splitLayout(cellWidths = c("50%", "50%"), 
+                  textInput("pvalue_user", "p-value", value = 0.05),
+                  textInput("log2FoldChange_user", "log2FoldChange", value = 2)),
+      textInput("title_user", "plot title:", placeholder = "Introduce plot title"),
+      selectInput("theme_user", "plot theme",
+                  choices = list("theme_gray", "theme_bw", "theme_linedraw",
+                                 "theme_light", "theme_dark", "theme_minimal",
+                                 "theme_classic", "theme_void", "theme_test"),
+                  selected = NULL,
+                  multiple = FALSE,
+                  selectize = FALSE)
+    ),
     
-    # Application title
-    titlePanel("Volcano plots for bulk-RNAseq data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            fileInput("csv_user", "Choose CSV File with DEG analysis", accept = ".csv"),
-            tags$h4("Choose threshold values:"),
-            splitLayout(cellWidths = c("50%", "50%"), 
-              textInput("pvalue_user",
-                      "p-value",
-                      value = 0.05),
-              textInput("log2FoldChange_user",
-                      "log2FoldChange",
-                      value = 2)),
-            textInput("title_user",
-                      "plot title:",
-                      placeholder = "Introduce plot title"),
-            selectInput(
-              "theme_user",
-              "plot theme",
-              choices = list(
-                "theme_gray",
-                "theme_bw",
-                "theme_linedraw",
-                "theme_light",
-                "theme_dark",
-                "theme_minimal",
-                "theme_classic",
-                "theme_void",
-                "theme_test"
-              ),
-              selected = NULL,
-              multiple = FALSE,
-              selectize = FALSE
-            )
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-          plotOutput("distPlot"),
-          fluidRow(
-            column(2,
-                   textInput("width_user", "Plot width", value = 8)
-            ),
-            column(2,
-                   textInput("height_user", "Plot height", value = 6)
-            ),
-            column(2,
-                   selectInput(
-                     "format_user",
-                     "Save format",
-                     choices = list("PNG", "JPG", "PDF", "EPS", "TIFF", "BMP", "SVG"),
-                     selected = "PNG",
-                     multiple = FALSE,
-                     selectize = FALSE
-                   )
-            ),
-            column(3,
-                   tags$label("Save plot"),
-                   downloadButton("downloadPlot", "Download")
-            )
-          )
-          
-        )
+    mainPanel(
+      plotOutput("distPlot", width = "100%", height = "auto"),
+      fluidRow(
+        column(2, textInput("width_user", "Plot width", value = 8)),
+        column(2, textInput("height_user", "Plot height", value = 6)),
+        column(2, selectInput("format_user", "Save format",
+                              choices = list("PNG", "JPG", "PDF", "EPS", "TIFF", "BMP", "SVG"),
+                              selected = "PNG", multiple = FALSE, selectize = FALSE)),
+        column(3,
+               tags$label("Save plot"),
+               br(),
+               downloadButton("downloadPlot", "Download"))
+      )
     )
+  )
 )
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
