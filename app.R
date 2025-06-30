@@ -56,14 +56,34 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-           plotOutput("distPlot"),
-           downloadButton("downloadPlot", "Download Plot")
+          plotOutput("distPlot"),
+          splitLayout(cellWidths = c("20%", "70%"), 
+            selectInput(
+              "format_user",
+              NULL,
+              choices = list(
+                "PNG",
+                "JPG",
+                "PDF",
+                "EPS",
+                "TIFF",
+                "BMP",
+                "SVG"
+              ),
+              selected = "PNG",
+              multiple = FALSE,
+              selectize = FALSE
+            ),
+            downloadButton("downloadPlot", "Download Plot")
+          )
+          
         )
     )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  reactive_format <- reactive(format_save_ <- tolower(as.character(input$format_user)))
   reactive_plot <- reactive({
     file_ <- input$csv_user
     ext <- tools::file_ext(file_$datapath)
@@ -129,7 +149,7 @@ server <- function(input, output) {
     
     output$downloadPlot <- downloadHandler(
       filename = function() {
-        paste("myplot-", Sys.Date(), ".png", sep="")
+        paste("myplot-", Sys.Date(), ".", reactive_format(), sep="")
       },
       content = function(file) {
         # Save the plot to file
